@@ -109,7 +109,7 @@
       <el-table-column label="分享率">
         <template slot-scope="scope">
           <span v-if="scope.row.downloaded > 0 && scope.row.uploaded">{{ (scope.row.uploaded / scope.row.downloaded).toFixed(2) }}</span>
-          <span v-else>1</span>
+          <span v-else>0</span>
         </template>
       </el-table-column>
 <!--      <el-table-column label="下载次数" align="center" prop="totalDownload" />-->
@@ -189,7 +189,7 @@
         <el-row>
           <el-col :span="8">
             <el-form-item label="目录" prop="categories">
-              <el-cascader v-model="form.categories" :options="categories"></el-cascader>
+              <el-cascader v-model="form.categories" :options="categories" @change="handleCategoryChanged"></el-cascader>
             </el-form-item>
           </el-col>
           <el-col :span="16">
@@ -212,6 +212,11 @@
               <torrent-viewer :torrent="torrent" />
             </el-form-item>
           </el-col>
+          <el-col :span="24" v-if="!isReview">
+            <el-form-item label="附加种子">
+              <torrent-uploader :limit="0" v-model="form.attachment" :file-type="['torrent']" :token="form.remark"/>
+            </el-form-item>
+          </el-col>
           <el-col :span="24" v-if="duplicate && duplicate.length > 0">
             <el-form-item label="重复文件">
               <div style="max-height: 300px; overflow-y: scroll">
@@ -219,9 +224,22 @@
               </div>
             </el-form-item>
           </el-col>
-          <el-col :span="24" v-if="!isReview">
-            <el-form-item label="附加种子">
-              <torrent-uploader :limit="0" v-model="form.attachment" :file-type="['torrent']" :token="form.remark"/>
+          <el-col :span="24">
+            <el-form-item label="标签">
+              <el-select
+                v-model="form.tags"
+                multiple
+                filterable
+                allow-create
+                default-first-option
+                placeholder="请输入种子标签" style="width: 100%;">
+                <el-option
+                  v-for="item in tagList"
+                  :key="item.id"
+                  :label="item.tag"
+                  :value="item.tag">
+                </el-option>
+              </el-select>
             </el-form-item>
           </el-col>
           <el-col :span="24">
@@ -241,30 +259,6 @@
             <el-radio label="1">直接发布</el-radio>
           </el-radio-group>
         </el-form-item>
-<!--        <el-form-item label="哈希值" prop="infoHash">-->
-<!--          <el-input v-model="form.infoHash" placeholder="请输入哈希值" />-->
-<!--        </el-form-item>-->
-<!--        <el-form-item label="文件大小" prop="fileSize">-->
-<!--          <el-input v-model="form.fileSize" placeholder="请输入文件大小" />-->
-<!--        </el-form-item>-->
-<!--        <el-form-item label="下载次数" prop="totalDownload">-->
-<!--          <el-input v-model="form.totalDownload" placeholder="请输入下载次数" />-->
-<!--        </el-form-item>-->
-<!--        <el-form-item label="上传积分" prop="uploaded">-->
-<!--          <el-input v-model="form.uploaded" placeholder="请输入上传积分" />-->
-<!--        </el-form-item>-->
-<!--        <el-form-item label="下载积分" prop="downloaded">-->
-<!--          <el-input v-model="form.downloaded" placeholder="请输入下载积分" />-->
-<!--        </el-form-item>-->
-<!--        <el-form-item label="上传令牌" prop="uploadToken">-->
-<!--          <el-input v-model="form.uploadToken" placeholder="请输入上传令牌" />-->
-<!--        </el-form-item>-->
-<!--        <el-form-item label="下载令牌" prop="downloadToken">-->
-<!--          <el-input v-model="form.downloadToken" placeholder="请输入下载令牌" />-->
-<!--        </el-form-item>-->
-<!--        <el-form-item label="备注信息" prop="remark">-->
-<!--          <el-input v-model="form.remark" type="textarea" placeholder="请输入内容" />-->
-<!--        </el-form-item>-->
       </el-form>
       <div slot="footer" class="dialog-footer">
         <el-button type="primary" @click="submitForm" v-if="!isReview">确 定</el-button>
@@ -276,6 +270,7 @@
 
 <script>
   import { listCategory } from "@/api/galaxy/category";
+  import { listTags } from "@/api/galaxy/tags";
   import { listTorrent, getTorrent, delTorrent, addTorrent, updateTorrent, exportTorrent, getVerify, listReviewTorrent } from "@/api/galaxy/torrent";
   import ImageUpload from '@/components/ImageUpload';
   import FileUpload from '@/components/FileUpload';
@@ -337,7 +332,8 @@ export default {
       },
       categories: [],
       torrent: null,
-      verifyRow: null
+      verifyRow: null,
+      tagList: null
     };
   },
   computed: {
@@ -349,6 +345,13 @@ export default {
     });
   },
   methods: {
+    handleCategoryChanged (category) {
+      let categoryId = category[category.length - 1]
+      listTags({categoryId: categoryId, pageSize: 999999}).then(res => {
+        this.tagList = res.rows
+      })
+      //listTags
+    },
     cancelVerify() {
       this.verifyRow = null
       this.showVerify = false
@@ -475,9 +478,9 @@ export default {
       getTorrent(id).then(response => {
         this.form = response.data;
         this.torrent = response.data.torrent
-        // this.form.categories = JSON.parse(this.form.categories)
         this.open = true;
         this.title = "修改资源";
+        this.handleCategoryChanged([this.form.categories])
       });
     },
     /** 提交按钮 */
@@ -486,7 +489,9 @@ export default {
         if (valid) {
           let formCpy = JSON.parse(JSON.stringify(this.form))
           delete formCpy.torrent
-          formCpy.categories = formCpy.categories[formCpy.categories.length - 1]
+          if (typeof(formCpy.categories) === 'object') {
+            formCpy.categories = formCpy.categories[formCpy.categories.length - 1]
+          }
           if (formCpy.id != null) {
             updateTorrent(formCpy).then(response => {
               this.msgSuccess("修改成功");

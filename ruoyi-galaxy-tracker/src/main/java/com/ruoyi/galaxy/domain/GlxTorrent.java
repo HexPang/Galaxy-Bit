@@ -1,14 +1,18 @@
 package com.ruoyi.galaxy.domain;
 
 import be.christophedetroyer.torrent.Torrent;
+import com.ruoyi.galaxy.service.impl.GlxTorrentTagsServiceImpl;
 import com.ruoyi.galaxy.vo.AttachmentVO;
 import org.apache.commons.lang3.builder.ToStringBuilder;
 import org.apache.commons.lang3.builder.ToStringStyle;
 import com.ruoyi.common.annotation.Excel;
 import com.ruoyi.common.core.domain.BaseEntity;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.annotation.Transient;
 
+import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 /**
  * 资源广场对象 glx_torrent
@@ -19,6 +23,9 @@ import java.util.List;
 public class GlxTorrent extends BaseEntity
 {
     private static final long serialVersionUID = 1L;
+
+    @Autowired
+    private GlxTorrentTagsServiceImpl torrentTagsService;
 
     /** 编号 */
     private Long id;
@@ -76,9 +83,21 @@ public class GlxTorrent extends BaseEntity
     @Transient
     private List<AttachmentVO> attachment;
 
+    @Transient
+    @Excel(name = "标签")
+    private List<String> tags;
+
     /** 状态（0正常 1暂停） */
     @Excel(name = "状态", readConverterExp = "0=正常,1=暂停")
     private String status;
+
+    public List<String> getTags() {
+        return tags;
+    }
+
+    public void setTags(List<String> tags) {
+        this.tags = tags;
+    }
 
     public List<AttachmentVO> getAttachment() {
         return attachment;

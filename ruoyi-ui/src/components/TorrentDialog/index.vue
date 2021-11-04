@@ -2,7 +2,7 @@
   <el-dialog :title="torrent ? torrent.title : '文件详情'" :visible.sync="show" width="80%" v-loading="loading" @closed="handleClosed">
     <el-row>
       <el-col :span="6">
-        <img v-if="torrent" :src="torrent.thumburl" style="width: 100%;"/>
+        <img v-if="torrent" :src="torrent.thumburl" style="width: 100%; border-radius: 5px;"/>
       </el-col>
       <el-col :span="18" v-if="torrent">
         <el-form label-width="80px">
@@ -113,6 +113,30 @@
         })
       },
       checkPeers (paymentInfo) {
+        let confirmFunc = () => {
+          let havePoints = (paymentInfo.points_available > paymentInfo.torrent_points)
+          let message = "下载当前资源需要消耗积分点数:<b>" + paymentInfo.torrent_points.toFixed(3) + "</b><br/>" +
+            "您当前资源点数为: <b>" + paymentInfo.points_available.toFixed(3) + "</b>, <b style='color: red'>" + (havePoints ? "可以" : "无法") + "</b>" +
+            "进行兑换下载.<br/>兑换之后再次下载将不会扣资源点数."
+          this.$confirm(message, "购买确认", {
+            confirmButtonText: "确定",
+            cancelButtonText: "取消",
+            showConfirmButton: havePoints,
+            type: "warning",
+            dangerouslyUseHTMLString: true
+          }).then( () => {
+            this.loading = true
+            getPaymentConfirm(this.torrentId).then( r => {
+              this.loading = false
+              if (r.code === 200) {
+                this.msgSuccess("购买成功!")
+                this.downloadTorrent()
+              } else {
+                this.msgError(r.msg)
+              }
+            })
+          })
+        }
         if (this.torrent.params.peers === 0) {
           this.$confirm('此资源目前没人做种,可能会无法完整下载资源.确定要继续购买吗?', '提示', {
             confirmButtonText: "确定",
@@ -120,29 +144,10 @@
             showConfirmButton: true,
             type: "warning",
           }).then(() => {
-            let havePoints = (paymentInfo.points_available > paymentInfo.torrent_points)
-            let message = "下载当前资源需要消耗积分点数:<b>" + paymentInfo.torrent_points.toFixed(3) + "</b><br/>" +
-              "您当前资源点数为: <b>" + paymentInfo.points_available.toFixed(3) + "</b>, <b style='color: red'>" + (havePoints ? "可以" : "无法") + "</b>" +
-              "进行兑换下载.<br/>兑换之后再次下载将不会扣资源点数."
-            this.$confirm(message, "购买确认", {
-              confirmButtonText: "确定",
-              cancelButtonText: "取消",
-              showConfirmButton: havePoints,
-              type: "warning",
-              dangerouslyUseHTMLString: true
-            }).then( () => {
-              this.loading = true
-              getPaymentConfirm(this.torrentId).then( r => {
-                this.loading = false
-                if (r.code === 200) {
-                  this.msgSuccess("购买成功!")
-                  this.downloadTorrent()
-                } else {
-                  this.msgError(r.msg)
-                }
-              })
-            })
+            confirmFunc()
           })
+        } else {
+          confirmFunc()
         }
       },
       confirmDownload () {

@@ -14,6 +14,7 @@ import com.ruoyi.common.core.domain.entity.SysUser;
 import com.ruoyi.common.core.page.TableDataInfo;
 import com.ruoyi.common.core.redis.RedisCache;
 import com.ruoyi.common.utils.SecurityUtils;
+import com.ruoyi.common.utils.StringUtils;
 import com.ruoyi.common.utils.file.FileUtils;
 import com.ruoyi.common.utils.sign.Base64;
 import com.ruoyi.common.utils.uuid.UUID;
@@ -223,7 +224,13 @@ public class IndexAPIController extends BaseController {
         if (!getUser().isAdmin()) {
             glxTorrent.setStatus("1");
         }
-        List<GlxTorrent> list = glxTorrentService.selectGlxTorrentList(glxTorrent);
+
+        List<GlxTorrent> list = null;
+        if (StringUtils.isEmpty(glxTorrent.getTags())) {
+            list = glxTorrentService.selectGlxTorrentList(glxTorrent);
+        } else {
+            list = glxTorrentService.selectGlxTorrentByTags(glxTorrent.getTags());
+        }
         list.forEach(x -> {
             x = setInfoSecret(x);
         });
@@ -273,7 +280,7 @@ public class IndexAPIController extends BaseController {
             String announce = this.getUrl() + "/announce?token=" + getUser().getToken() + "&type=" + (attachment ? "attachment" : "torrent");
             fileMap.remove("announce-list");
             fileMap.put("announce", announce);
-            fileMap.put("publisher-url", "https://galaxy-bit.com/");
+            fileMap.put("publisher-url", "https://www.galaxy-bit.com:9999/");
             byte[] fileBuffer = bencode.encode(fileMap);
             return Base64.encode(fileBuffer);
         }

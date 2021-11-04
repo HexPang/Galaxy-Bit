@@ -6,6 +6,11 @@
 
     <div class="right-menu">
       <template v-if="device!=='mobile'">
+        <el-tooltip :content="'总积分：' + points + ' 下载量：' + formatFileSize(downloaded) + ' 上传量：' + formatFileSize(uploaded) + ' 分享率：' + (uploaded / downloaded).toFixed(2)">
+          <div class="right-menu-item hover-effect" style="font-size: 14px;">
+            <i class="el-icon-coin"></i>{{ points }} <i class="el-icon-download"></i>{{ formatFileSize(downloaded)}} <i class="el-icon-upload2"></i>{{ formatFileSize(uploaded) }} <i class="el-icon-odometer"></i>{{ (uploaded / downloaded).toFixed(2) }}
+          </div>
+        </el-tooltip>
         <el-tooltip content="qBittorrent客户端" effect="dark" placement="bottom">
           <div class="right-menu-item hover-effect">
             <svg-icon icon-class="qBittorrent" @click="openUrl('https://www.qbittorrent.org/download.php')" />
@@ -61,7 +66,10 @@ export default {
     ...mapGetters([
       'sidebar',
       'avatar',
-      'device'
+      'device',
+      'points',
+      'uploaded',
+      'downloaded'
     ]),
     setting: {
       get() {

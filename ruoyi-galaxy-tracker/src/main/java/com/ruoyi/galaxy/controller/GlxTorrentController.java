@@ -97,7 +97,7 @@ public class GlxTorrentController extends BaseController
             String announce = this.getUrl() + "/announce?token=" + getUser().getToken() + "&seed=" + seed;
             fileMap.remove("announce-list");
             fileMap.put("announce", announce);
-            fileMap.put("publisher-url", "https://galaxy-bit.com/");
+            fileMap.put("publisher-url", "https://www.galaxy-bit.com:9999/");
             byte[] fileBuffer = bencode.encode(fileMap);
             return Base64.encode(fileBuffer);
         }

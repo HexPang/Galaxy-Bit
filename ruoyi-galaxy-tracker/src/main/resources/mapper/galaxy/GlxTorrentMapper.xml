@@ -45,6 +45,15 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
             <if test="status != null  and status != ''"> and status = #{status}</if>
         </where>
     </select>
+
+    <select id="selectGlxTorrentByTags" parameterType="String" resultMap="GlxTorrentResult">
+        <include refid="selectGlxTorrentVo" />
+        WHERE id in (SELECT glx_torrent_tags.torrent_id FROM glx_torrent_tags WHERE glx_torrent_tags.tag IN
+        <foreach item="tag" collection="list" open="(" separator="," close=")">
+            #{tag}
+        </foreach>
+        )
+    </select>
     
     <select id="selectGlxTorrentById" parameterType="Long" resultMap="GlxTorrentResult">
         <include refid="selectGlxTorrentDetailVo"/>

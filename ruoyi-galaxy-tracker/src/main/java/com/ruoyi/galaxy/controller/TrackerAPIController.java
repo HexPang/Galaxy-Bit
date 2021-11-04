@@ -244,6 +244,9 @@ public class TrackerAPIController extends BaseController {
         if (announceVO.getEvent() != null) {
             peer.setEvent(announceVO.getEvent());
         }
+        if (!peer.getIp().equalsIgnoreCase(getIp())) {
+            peer.setIp(getIp());
+        }
         peer.setDownloadSpeed(0L);
         peer.setTorrentId(torrent.getId());
         peer.setUpdateTime(new Date());

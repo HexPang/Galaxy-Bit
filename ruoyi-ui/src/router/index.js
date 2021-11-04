@@ -118,6 +118,25 @@ export const constantRoutes = [
         meta: { title: '修改生成配置' }
       }
     ]
+  },
+  {
+    path: '/detail',
+    component: Layout,
+    hidden: true,
+    children: [
+      {
+        path: 'torrent/:torrentId',
+        component: (resolve) => require(['@/views/galaxy/view'], resolve),
+        name: 'TorrentView',
+        meta: { title: '资源详情' }
+      },
+      {
+        path: 'tag/:tag',
+        component: (resolve) => require(['@/views/galaxy/view/tag'], resolve),
+        name: 'TorrentTagView',
+        meta: { title: '标签资源' }
+      }
+    ]
   }
 ]
 

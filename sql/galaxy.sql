@@ -265,27 +265,27 @@ CREATE TABLE `glx_points_record`  (
 -- ----------------------------
 DROP TABLE IF EXISTS `glx_torrent`;
 CREATE TABLE `glx_torrent`  (
-  `id` bigint(20) NOT NULL AUTO_INCREMENT COMMENT '编号',
-  `user_id` bigint(20) NULL DEFAULT NULL COMMENT '用户编号',
-  `info_hash` varchar(64) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NULL DEFAULT NULL COMMENT '哈希值',
-  `title` varchar(190) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NULL DEFAULT NULL COMMENT '标题',
-  `file_name` varchar(190) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NULL DEFAULT NULL COMMENT '文件名称',
-  `categories` bigint(190) NULL DEFAULT NULL COMMENT '目录',
-  `description` longtext CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NULL COMMENT '详情',
-  `thumbUrl` varchar(190) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NULL DEFAULT NULL COMMENT '缩略图',
-  `file_size` bigint(20) NULL DEFAULT NULL COMMENT '文件大小',
-  `total_download` int(11) NULL DEFAULT 0 COMMENT '下载次数',
-  `uploaded` bigint(20) NULL DEFAULT 0 COMMENT '上传流量',
-  `downloaded` bigint(20) NULL DEFAULT 0 COMMENT '下载流量',
-  `upload_token` varchar(128) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NULL DEFAULT NULL COMMENT '上传令牌',
-  `download_token` varchar(128) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NULL DEFAULT NULL COMMENT '下载令牌',
-  `status` char(1) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NULL DEFAULT '0' COMMENT '状态（0正常 1暂停）',
-  `create_by` varchar(64) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NULL DEFAULT '' COMMENT '创建者',
-  `create_time` datetime(0) NULL DEFAULT NULL COMMENT '创建时间',
-  `update_by` varchar(64) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NULL DEFAULT '' COMMENT '更新者',
-  `update_time` datetime(0) NULL DEFAULT NULL COMMENT '更新时间',
-  `remark` varchar(500) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NULL DEFAULT '' COMMENT '备注信息',
-  PRIMARY KEY (`id`) USING BTREE
+                                `id` bigint(20) NOT NULL AUTO_INCREMENT COMMENT '编号',
+                                `user_id` bigint(20) NULL DEFAULT NULL COMMENT '用户编号',
+                                `info_hash` varchar(64) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NULL DEFAULT NULL COMMENT '哈希值',
+                                `title` varchar(190) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NULL DEFAULT NULL COMMENT '标题',
+                                `file_name` varchar(190) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NULL DEFAULT NULL COMMENT '文件名称',
+                                `categories` bigint(190) NULL DEFAULT NULL COMMENT '目录',
+                                `description` longtext CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NULL COMMENT '详情',
+                                `thumbUrl` varchar(190) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NULL DEFAULT NULL COMMENT '缩略图',
+                                `file_size` bigint(20) NULL DEFAULT NULL COMMENT '文件大小',
+                                `total_download` int(11) NULL DEFAULT 0 COMMENT '下载次数',
+                                `uploaded` bigint(20) NULL DEFAULT 0 COMMENT '上传流量',
+                                `downloaded` bigint(20) NULL DEFAULT 0 COMMENT '下载流量',
+                                `upload_token` varchar(128) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NULL DEFAULT NULL COMMENT '上传令牌',
+                                `download_token` varchar(128) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NULL DEFAULT NULL COMMENT '下载令牌',
+                                `status` char(1) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NULL DEFAULT '0' COMMENT '状态（0正常 1暂停）',
+                                `create_by` varchar(64) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NULL DEFAULT '' COMMENT '创建者',
+                                `create_time` datetime(0) NULL DEFAULT NULL COMMENT '创建时间',
+                                `update_by` varchar(64) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NULL DEFAULT '' COMMENT '更新者',
+                                `update_time` datetime(0) NULL DEFAULT NULL COMMENT '更新时间',
+                                `remark` varchar(500) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NULL DEFAULT '' COMMENT '备注信息',
+                                PRIMARY KEY (`id`) USING BTREE
 ) ENGINE = InnoDB AUTO_INCREMENT = 78 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_general_ci COMMENT = '种子表' ROW_FORMAT = Dynamic;
 
 -- ----------------------------
@@ -1179,5 +1179,19 @@ CREATE TABLE `sys_user_role`  (
   PRIMARY KEY (`user_id`, `role_id`) USING BTREE
 ) ENGINE = InnoDB CHARACTER SET = utf8mb4 COLLATE = utf8mb4_general_ci COMMENT = '用户和角色关联表' ROW_FORMAT = Dynamic;
 
+DROP TABLE IF EXISTS `glx_torrent_tags`;
+CREATE TABLE `glx_torrent_tags`  (
+                                     `id` bigint(20) NOT NULL AUTO_INCREMENT COMMENT '编号',
+                                     `torrent_id` bigint(20) NULL DEFAULT NULL COMMENT '种子',
+                                     `category_id` bigint(20) NULL DEFAULT NULL COMMENT '所属分类',
+                                     `tag` varchar(32) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NULL DEFAULT NULL COMMENT '标签',
+                                     `status` char(1) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NULL DEFAULT '0' COMMENT '状态（0正常 1暂停）',
+                                     `create_by` varchar(64) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NULL DEFAULT '' COMMENT '创建者',
+                                     `create_time` datetime(0) NULL DEFAULT NULL COMMENT '创建时间',
+                                     `update_by` varchar(64) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NULL DEFAULT '' COMMENT '更新者',
+                                     `update_time` datetime(0) NULL DEFAULT NULL COMMENT '更新时间',
+                                     `remark` varchar(500) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NULL DEFAULT '' COMMENT '备注信息',
+                                     PRIMARY KEY (`id`) USING BTREE
+) ENGINE = InnoDB AUTO_INCREMENT = 10 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_general_ci ROW_FORMAT = Dynamic;
 
 SET FOREIGN_KEY_CHECKS = 1;

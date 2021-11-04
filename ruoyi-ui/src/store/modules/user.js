@@ -7,7 +7,10 @@ const user = {
     name: '',
     avatar: '',
     roles: [],
-    permissions: []
+    permissions: [],
+    points: 0,
+    downloaded: 0,
+    uploaded: 0
   },
 
   mutations: {
@@ -25,6 +28,15 @@ const user = {
     },
     SET_PERMISSIONS: (state, permissions) => {
       state.permissions = permissions
+    },
+    SET_POINTS: (state, points) => {
+      state.points = points
+    },
+    SET_DOWNLOADED: (state, downloaded) => {
+      state.downloaded = downloaded
+    },
+    SET_UPLOADED: (state, uploaded) => {
+      state.uploaded = uploaded
     }
   },
 
@@ -60,13 +72,16 @@ const user = {
           }
           commit('SET_NAME', user.userName)
           commit('SET_AVATAR', avatar)
+          commit('SET_POINTS', user.points)
+          commit('SET_DOWNLOADED', user.downloaded)
+          commit('SET_UPLOADED', user.uploaded)
           resolve(res)
         }).catch(error => {
           reject(error)
         })
       })
     },
-    
+
     // 退出系统
     LogOut({ commit, state }) {
       return new Promise((resolve, reject) => {

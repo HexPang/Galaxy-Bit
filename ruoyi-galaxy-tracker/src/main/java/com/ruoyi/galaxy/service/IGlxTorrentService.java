@@ -67,4 +67,12 @@ public interface IGlxTorrentService
      * @return
      */
     public int updateGlxTorrentCounter(GlxTorrent glxTorrent);
+
+    /**
+     * 通过标签查找种子
+     *
+     * @param tag
+     * @return
+     */
+    public List<GlxTorrent> selectGlxTorrentByTags(List<String> tags);
 }

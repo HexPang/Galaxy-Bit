@@ -28,25 +28,7 @@
         <span style="line-height: 24px;">{{ v.noticeTitle }}</span>
       </el-carousel-item>
     </el-carousel>
-    <el-card v-loading="loading">
-      <div class="folder-box" v-if="torrents !== null && torrents.length > 0">
-        <torrent-card :torrent="v" v-for="(v, k) in torrents" :key="'torrent_' + k" @click.native="handleTorrentClick(v)"></torrent-card>
-      </div>
-      <div v-else style="text-align: center; font-size: 24px;height: 300px; color: #5c5c5c;">
-        <i class="el-icon-ice-tea" style="line-height: 300px;">这里竟然空空如也, 骚年不如来分享下?</i>
-      </div>
-    </el-card>
-    <div>
-      <el-pagination
-        style="float: right;"
-        @current-change="handleCurrentChange"
-        :current-page.sync="queryParams.pageNum"
-        :page-size="queryParams.pageSize"
-        layout="total, prev, pager, next"
-        :total="page.total">
-      </el-pagination>
-    </div>
-    <torrent-dialog :torrent-id="torrentId" @closed="handleClosed"/>
+    <torrent-list ref="torrentList"/>
     <el-dialog :title="notice ? notice.noticeTitle : '公告'" :visible.sync="shouldShowNoticeDialog" width="80%;">
       <div v-html="notice.noticeContent" v-if="notice && shouldShowNoticeDialog"></div>
     </el-dialog>
@@ -54,17 +36,13 @@
 </template>
 
 <script>
-  import TorrentDialog from "@/components/TorrentDialog"
-  import TorrentCard from "@/components/TorrentCard"
-  import TorrentViewer from "@/components/TorrentViewer"
+  import TorrentList from "@/components/TorrentList"
   import { listCategory } from "@/api/galaxy/category";
   import { listTorrents, getNotice } from "@/api/galaxy/piazza"
   export default {
     name: "index",
     components: {
-      TorrentViewer,
-      TorrentCard,
-      TorrentDialog
+      TorrentList
     },
     data() {
       return {
@@ -73,16 +51,7 @@
         page: {
           total: 0
         },
-        queryParams: {
-          pageNum: 1,
-          pageSize: 20,
-          infoHash: null,
-          title: null,
-          categories: null,
-          status: null,
-          orderByColumn: 'updateTime',
-          isAsc: 'desc'
-        },
+        queryParams: {},
         noticeQuery: {
           pageNum: 1,
           pageSize: 10,
@@ -91,15 +60,17 @@
           status: undefined
         },
         categories: null,
-        torrents: null,
         categoryTree: null,
-        torrentId: null,
         notices: null,
         shouldShowNoticeDialog: false,
         loading: false
       };
     },
     methods: {
+      handleCurrentChange () {
+        this.$refs.torrentList.queryParams = this.queryParams
+        this.$refs.torrentList.handleCurrentChange()
+      },
       handleSearch () {
         this.queryParams.pageNum = 1
         this.handleCurrentChange()
@@ -113,38 +84,12 @@
           this.notices = res.rows
         })
       },
-      handleCurrentChange () {
-        this.loading = true
-        listTorrents(this.queryParams).then(res => {
-          this.loading = false
-          res.rows.forEach( x => {
-            x.categoryName = this.getCategoryName(x.categories)
-          })
-          this.torrents = res.rows
-          this.$set(this.page, 'total', res.total)
-        })
-      },
-      handleClosed () {
-        this.torrentId = null
-      },
-      handleTorrentClick (torrent) {
-        this.torrentId = torrent.id
-      },
       handleMenuSelect (index) {
         if (parseInt(index) === 0) {
           index = null
         }
         this.queryParams.categories = index
         this.handleCurrentChange()
-      },
-      getCategoryName (id) {
-        let category = this.categories.find(x => {
-          return parseInt(x.id) === parseInt(id)
-        })
-        if (category) {
-          return category.title
-        }
-        return null
       },
       load () {
         listCategory().then(res => {
@@ -165,28 +110,11 @@
   /deep/ .el-dialog__body img {
     max-width: 100% !important;
   }
+  #app .hideSidebar .el-submenu > .el-submenu__title {
+    padding: 0 20px !important;
+  }
 </style>
 <style scoped lang="scss">
-  .folder-box {
-    display: flex;
-    display: -webkit-flex;
-    flex-direction: row;
-    flex-wrap: wrap;
-    align-content: flex-start;
-    align-items: center;
-  }
-  .folder-item {
-    width: 250px;
-    overflow: hidden;
-    cursor: pointer;
-    text-align: center;
-    img {
-      height: 250px;
-    }
-  }
-  .folder-item:hover > span {
-    color: #3A71A8;
-  }
   .home {
     blockquote {
       padding: 10px 20px;

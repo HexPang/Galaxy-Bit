@@ -5,6 +5,7 @@ import java.util.concurrent.TimeUnit;
 
 import com.ruoyi.common.core.redis.RedisCache;
 import com.ruoyi.common.utils.DateUtils;
+import com.ruoyi.galaxy.domain.GlxTorrentTags;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import com.ruoyi.galaxy.mapper.GlxTorrentMapper;
@@ -23,6 +24,9 @@ public class GlxTorrentServiceImpl implements IGlxTorrentService
     @Autowired
     private GlxTorrentMapper glxTorrentMapper;
 
+    @Autowired
+    private GlxTorrentTagsServiceImpl torrentTagsService;
+
     /**
      * 查询资源广场
      * 
@@ -32,7 +36,9 @@ public class GlxTorrentServiceImpl implements IGlxTorrentService
     @Override
     public GlxTorrent selectGlxTorrentById(Long id)
     {
-        return glxTorrentMapper.selectGlxTorrentById(id);
+        GlxTorrent torrent = glxTorrentMapper.selectGlxTorrentById(id);
+        torrent.setTags(torrentTagsService.getByTorrent(torrent));
+        return torrent;
     }
 
     /**
@@ -44,7 +50,11 @@ public class GlxTorrentServiceImpl implements IGlxTorrentService
     @Override
     public List<GlxTorrent> selectGlxTorrentList(GlxTorrent glxTorrent)
     {
-        return glxTorrentMapper.selectGlxTorrentList(glxTorrent);
+        List<GlxTorrent> torrents = glxTorrentMapper.selectGlxTorrentList(glxTorrent);
+        torrents.forEach(torrent -> {
+            torrent.setTags(torrentTagsService.getByTorrent(torrent));
+        });
+        return torrents;
     }
 
     /**
@@ -57,7 +67,9 @@ public class GlxTorrentServiceImpl implements IGlxTorrentService
     public int insertGlxTorrent(GlxTorrent glxTorrent)
     {
         glxTorrent.setCreateTime(DateUtils.getNowDate());
-        return glxTorrentMapper.insertGlxTorrent(glxTorrent);
+        int result = glxTorrentMapper.insertGlxTorrent(glxTorrent);
+        torrentTagsService.updateTorrentTags(glxTorrent);
+        return result;
     }
 
     /**
@@ -70,7 +82,9 @@ public class GlxTorrentServiceImpl implements IGlxTorrentService
     public int updateGlxTorrent(GlxTorrent glxTorrent)
     {
         glxTorrent.setUpdateTime(DateUtils.getNowDate());
-        return glxTorrentMapper.updateGlxTorrent(glxTorrent);
+        int result = glxTorrentMapper.updateGlxTorrent(glxTorrent);
+        torrentTagsService.updateTorrentTags(glxTorrent);
+        return result;
     }
 
     /**
@@ -105,5 +119,10 @@ public class GlxTorrentServiceImpl implements IGlxTorrentService
     @Override
     public int updateGlxTorrentCounter(GlxTorrent glxTorrent) {
         return glxTorrentMapper.updateGlxTorrentCounter(glxTorrent);
+    }
+
+    @Override
+    public List<GlxTorrent> selectGlxTorrentByTags(List<String> tags) {
+        return glxTorrentMapper.selectGlxTorrentByTags(tags);
     }
 }
